@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">iCaughtU Android</string>
+    <string name="admin_description">Detect failed device unlock attempts and protect this device.</string>
+</resources>
