@@ -9,3 +9,9 @@
 /captures/
 .externalNativeBuild/
 .cxx/
+
+# Signing keys must never be committed
+*.jks
+*.keystore
+*.p12
+keystore.properties

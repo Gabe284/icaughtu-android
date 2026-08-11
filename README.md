@@ -179,3 +179,12 @@ ICU <key> STOPALARM
 ```
 
 For ntfy, publish commands to the configured command topic. Do not reuse a command key from another service. Use HTTPS topics and a private/protected topic or access token for remote control.
+
+
+## v0.3.1 gallery + persistent signing
+
+Incident JPEGs are still retained in the app's private incident store for delivery, and are also published to Android MediaStore under `Pictures/iCaughtU`. This makes new captures visible to gallery applications and creates an `iCaughtU` device album/bucket. The app also retries publication of any private incident photos that have not yet been exported whenever the main activity starts, and exposes a manual gallery-sync button.
+
+GitHub Actions now builds a persistently signed release APK. The signing key is generated once under the Termux-private directory `~/.icaughtu-signing/` and is uploaded to GitHub only through repository Actions secrets. Preserve that local signing directory as a backup. Losing both the local key and the GitHub secret prevents future APKs from updating existing installations.
+
+The pre-v0.3.1 GitHub debug APKs were signed with runner-generated debug certificates. Android will therefore require the currently installed debug build to be uninstalled once before the first persistently signed v0.3.1 release can be installed. After that migration, future signed release builds can update v0.3.1+ in place.

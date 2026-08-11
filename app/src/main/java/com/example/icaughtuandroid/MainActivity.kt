@@ -29,6 +29,7 @@ import com.example.icaughtuandroid.service.AlarmService
 import com.example.icaughtuandroid.service.IncidentCaptureService
 import com.example.icaughtuandroid.service.IncidentJobService
 import com.example.icaughtuandroid.util.NotificationUtil
+import com.example.icaughtuandroid.util.MediaPhotoPublisher
 import com.example.icaughtuandroid.util.SmtpClient
 import kotlin.concurrent.thread
 
@@ -77,6 +78,18 @@ class MainActivity : Activity() {
         admin = ComponentName(this, GuardAdminReceiver::class.java)
         NotificationUtil.ensureChannels(this)
         setContentView(buildUi())
+        thread(name = "icu-gallery-sync") {
+            val result = MediaPhotoPublisher.syncIncidentPhotos(this)
+            if (result.published > 0 || result.failed > 0) {
+                runOnUiThread {
+                    Toast.makeText(
+                        this,
+                        "Gallery sync: ${result.published} added, ${result.failed} failed",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
     }
 
     override fun onResume() {
@@ -240,6 +253,18 @@ class MainActivity : Activity() {
         })
 
         root.addView(label("Tests and actions"))
+        root.addView(button("Publish incident photos to iCaughtU album") {
+            thread(name = "icu-gallery-sync-manual") {
+                val result = MediaPhotoPublisher.syncIncidentPhotos(this)
+                runOnUiThread {
+                    Toast.makeText(
+                        this,
+                        "Gallery sync: ${result.published} added, ${result.alreadyPublished} already present, ${result.failed} failed",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        })
         root.addView(button("Capture test incident") {
             val cameraGranted = checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
             if (cameraGranted) {
@@ -344,6 +369,7 @@ class MainActivity : Activity() {
             Manifest.permission.ACCESS_COARSE_LOCATION
         )
         if (Build.VERSION.SDK_INT >= 33) permissions += Manifest.permission.POST_NOTIFICATIONS
+        if (Build.VERSION.SDK_INT <= 28) permissions += Manifest.permission.WRITE_EXTERNAL_STORAGE
         requestPermissions(permissions.toTypedArray(), REQUEST_PERMISSIONS)
     }
 

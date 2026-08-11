@@ -22,6 +22,7 @@ import com.example.icaughtuandroid.data.Prefs
 import com.example.icaughtuandroid.util.LocationUtil
 import com.example.icaughtuandroid.util.NotificationUtil
 import com.example.icaughtuandroid.util.IncidentDelivery
+import com.example.icaughtuandroid.util.MediaPhotoPublisher
 import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.atomic.AtomicBoolean
@@ -189,6 +190,7 @@ class IncidentCaptureService : Service() {
 
         thread(name = "icu-incident-upload") {
             val prefs = Prefs(this)
+            val gallery = photo?.let { MediaPhotoPublisher.publish(this, it) }
             val location = if (prefs.includeLocation) LocationUtil.bestLastKnownLocation(this) else null
             val result = IncidentDelivery.sendAll(
                 this,
@@ -206,7 +208,7 @@ class IncidentCaptureService : Service() {
                 location?.latitude,
                 location?.longitude,
                 photo?.name,
-                "$cameraDetail; ${result.detail}"
+                "$cameraDetail; ${gallery?.detail ?: "no gallery photo"}; ${result.detail}"
             )
             NotificationUtil.event(
                 this,
@@ -214,6 +216,7 @@ class IncidentCaptureService : Service() {
                 buildString {
                     append("Attempt #").append(attempts)
                     if (photo != null) append("; front-camera photo saved")
+                    if (gallery?.ok == true) append("; added to iCaughtU album")
                     if (!result.ok) append("; delivery failed")
                 }
             )
