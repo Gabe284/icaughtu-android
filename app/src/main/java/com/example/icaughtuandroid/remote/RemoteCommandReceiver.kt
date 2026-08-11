@@ -1,7 +1,7 @@
 package com.example.icaughtuandroid.remote
 
 import android.Manifest
-import android.app.SmsManager
+import android.telephony.SmsManager
 import android.app.admin.DevicePolicyManager
 import android.content.BroadcastReceiver
 import android.content.ComponentName
