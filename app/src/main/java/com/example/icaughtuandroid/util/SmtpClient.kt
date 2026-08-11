@@ -237,7 +237,7 @@ object SmtpClient {
 
     private fun writeData(writer: BufferedWriter, data: String) {
         data.replace("\r\n", "\n").split('\n').forEach { line ->
-            if (line.startsWith('.')) writer.write('.')
+            if (line.startsWith('.')) writer.write(".")
             writer.write(line)
             writer.write("\r\n")
         }
