@@ -13,9 +13,11 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.SEND_SMS" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="false"
@@ -47,7 +49,6 @@
             </intent-filter>
         </receiver>
 
-
         <receiver
             android:name=".remote.RemoteCommandReceiver"
             android:exported="true"
@@ -58,12 +59,29 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name=".remote.BootReceiver"
+            android:exported="false"
+            android:directBootAware="true">
+            <intent-filter>
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".remote.NtfyCommandService"
+            android:exported="false"
+            android:directBootAware="true"
+            android:stopWithTask="false"
+            android:foregroundServiceType="remoteMessaging" />
+
         <service
             android:name=".service.IncidentCaptureService"
             android:exported="false"
             android:foregroundServiceType="camera|location"
             android:directBootAware="true" />
-
 
         <service
             android:name=".service.AlarmService"

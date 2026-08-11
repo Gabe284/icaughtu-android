@@ -155,3 +155,27 @@ Commands are ignored unless both the sender number and key match. SMS itself is 
 - `service/AlarmService.kt` — lost-device alarm.
 - `util/WebhookClient.kt` — HTTPS + HMAC incident delivery.
 - `data/Prefs.kt`, `data/IncidentStore.kt` — device-protected local state/logging.
+
+## v0.2 communication transports
+
+All communication transports are independent and can be enabled in any combination.
+
+- **SMS commands:** Existing `ICU <key> ...` commands remain supported and can be enabled/disabled separately.
+- **ntfy Internet commands:** Optional HTTPS streaming command channel over Wi-Fi/Internet. Configure an ntfy server, command topic, optional response topic, optional Bearer token, and a command key. A visible `remoteMessaging` foreground-service notification is shown while listening.
+- **Webhook incidents:** Existing HTTPS/HMAC incident delivery remains available with an independent enable switch.
+- **SMTP email incidents:** Optional direct SMTP delivery with STARTTLS (normally port 587) or implicit TLS (normally port 465). Photo attachments are included when a photo exists and photo delivery is enabled.
+- **ntfy incident alerts:** Optional incident summaries can be published to a separate ntfy topic.
+
+The SMS and ntfy command syntaxes are identical:
+
+```text
+ICU <key> STATUS
+ICU <key> LOCATE
+ICU <key> LOCK
+ICU <key> ARM ON
+ICU <key> ARM OFF
+ICU <key> ALARM
+ICU <key> STOPALARM
+```
+
+For ntfy, publish commands to the configured command topic. Do not reuse a command key from another service. Use HTTPS topics and a private/protected topic or access token for remote control.

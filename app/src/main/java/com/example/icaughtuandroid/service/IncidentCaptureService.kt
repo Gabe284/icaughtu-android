@@ -21,7 +21,7 @@ import com.example.icaughtuandroid.data.IncidentStore
 import com.example.icaughtuandroid.data.Prefs
 import com.example.icaughtuandroid.util.LocationUtil
 import com.example.icaughtuandroid.util.NotificationUtil
-import com.example.icaughtuandroid.util.WebhookClient
+import com.example.icaughtuandroid.util.IncidentDelivery
 import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.atomic.AtomicBoolean
@@ -190,7 +190,7 @@ class IncidentCaptureService : Service() {
         thread(name = "icu-incident-upload") {
             val prefs = Prefs(this)
             val location = if (prefs.includeLocation) LocationUtil.bestLastKnownLocation(this) else null
-            val result = WebhookClient.sendIncident(
+            val result = IncidentDelivery.sendAll(
                 this,
                 source,
                 attempts,
@@ -202,7 +202,7 @@ class IncidentCaptureService : Service() {
                 this,
                 source,
                 attempts,
-                if (result.ok) "processed" else "webhook_failed",
+                if (result.ok) "processed" else "delivery_failed",
                 location?.latitude,
                 location?.longitude,
                 photo?.name,
@@ -214,7 +214,7 @@ class IncidentCaptureService : Service() {
                 buildString {
                     append("Attempt #").append(attempts)
                     if (photo != null) append("; front-camera photo saved")
-                    if (!result.ok) append("; webhook failed")
+                    if (!result.ok) append("; delivery failed")
                 }
             )
             stopForeground(STOP_FOREGROUND_REMOVE)

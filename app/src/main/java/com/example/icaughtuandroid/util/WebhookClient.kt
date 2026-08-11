@@ -22,8 +22,9 @@ object WebhookClient {
         photo: File?
     ): Result {
         val prefs = Prefs(context)
+        if (!prefs.webhookEnabled) return Result(true, "webhook disabled")
         val endpoint = prefs.webhookUrl
-        if (endpoint.isBlank()) return Result(true, "local-only; webhook not configured")
+        if (endpoint.isBlank()) return Result(false, "webhook enabled but URL not configured")
         if (!endpoint.startsWith("https://", ignoreCase = true)) {
             return Result(false, "webhook rejected: HTTPS is required")
         }
@@ -62,7 +63,7 @@ object WebhookClient {
                 readTimeout = 15_000
                 doOutput = true
                 setRequestProperty("Content-Type", "application/json; charset=utf-8")
-                setRequestProperty("User-Agent", "ICaughtUAndroid/0.1")
+                setRequestProperty("User-Agent", "ICaughtUAndroid/0.2")
                 val secret = prefs.webhookSecret
                 if (secret.isNotBlank()) {
                     setRequestProperty("X-ICU-Signature", "sha256=${hmacSha256(secret, body)}")

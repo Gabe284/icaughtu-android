@@ -13,7 +13,9 @@ import com.example.icaughtuandroid.R
 object NotificationUtil {
     const val CHANNEL_CAPTURE = "incident_capture"
     const val CHANNEL_EVENTS = "security_events"
+    const val CHANNEL_MESSAGING = "remote_messaging"
     const val CAPTURE_NOTIFICATION_ID = 4101
+    const val MESSAGING_NOTIFICATION_ID = 4103
 
     fun ensureChannels(context: Context) {
         if (Build.VERSION.SDK_INT < 26) return
@@ -28,9 +30,20 @@ object NotificationUtil {
                 description = "Failed-unlock and anti-theft status notifications."
             }
         )
+        nm.createNotificationChannel(
+            NotificationChannel(CHANNEL_MESSAGING, "Internet commands", NotificationManager.IMPORTANCE_LOW).apply {
+                description = "Keeps the optional ntfy command connection active over the Internet."
+            }
+        )
     }
 
-    fun captureNotification(context: Context, text: String): Notification {
+    fun captureNotification(context: Context, text: String): Notification =
+        serviceNotification(context, CHANNEL_CAPTURE, text)
+
+    fun messagingNotification(context: Context, text: String): Notification =
+        serviceNotification(context, CHANNEL_MESSAGING, text)
+
+    private fun serviceNotification(context: Context, channel: String, text: String): Notification {
         ensureChannels(context)
         val pi = PendingIntent.getActivity(
             context,
@@ -38,7 +51,7 @@ object NotificationUtil {
             Intent(context, MainActivity::class.java),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
-        return Notification.Builder(context, CHANNEL_CAPTURE)
+        return Notification.Builder(context, channel)
             .setSmallIcon(R.drawable.ic_shield)
             .setContentTitle("iCaughtU Android")
             .setContentText(text)

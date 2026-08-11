@@ -9,9 +9,9 @@ import android.content.Context
 import android.os.PersistableBundle
 import com.example.icaughtuandroid.data.IncidentStore
 import com.example.icaughtuandroid.data.Prefs
+import com.example.icaughtuandroid.util.IncidentDelivery
 import com.example.icaughtuandroid.util.LocationUtil
 import com.example.icaughtuandroid.util.NotificationUtil
-import com.example.icaughtuandroid.util.WebhookClient
 import kotlin.concurrent.thread
 
 class IncidentJobService : JobService() {
@@ -21,7 +21,7 @@ class IncidentJobService : JobService() {
             val source = params.extras.getString(KEY_SOURCE, "failed_unlock") ?: "failed_unlock"
             val prefs = Prefs(this)
             val location = if (prefs.includeLocation) LocationUtil.bestLastKnownLocation(this) else null
-            val result = WebhookClient.sendIncident(
+            val result = IncidentDelivery.sendAll(
                 this,
                 source,
                 attempts,
@@ -33,7 +33,7 @@ class IncidentJobService : JobService() {
                 this,
                 source,
                 attempts,
-                if (result.ok) "processed" else "webhook_failed",
+                if (result.ok) "processed" else "delivery_failed",
                 location?.latitude,
                 location?.longitude,
                 detail = result.detail
@@ -41,7 +41,7 @@ class IncidentJobService : JobService() {
             NotificationUtil.event(
                 this,
                 "Security incident recorded",
-                if (result.ok) "Failed unlock attempt #$attempts was recorded." else "Incident recorded; webhook delivery failed."
+                if (result.ok) "Failed unlock attempt #$attempts was recorded." else "Incident recorded; one or more deliveries failed."
             )
             jobFinished(params, false)
         }
@@ -61,14 +61,16 @@ class IncidentJobService : JobService() {
                 putString(KEY_SOURCE, source)
             }
             val prefs = Prefs(context)
+            val networkDelivery =
+                (prefs.webhookEnabled && prefs.webhookUrl.isNotBlank()) ||
+                    prefs.emailEnabled ||
+                    prefs.ntfyIncidentEnabled
             val jobId = ((System.currentTimeMillis() and 0x7fffffffL) % Int.MAX_VALUE).toInt()
             val job = JobInfo.Builder(jobId, ComponentName(context, IncidentJobService::class.java))
                 .setExtras(extras)
                 .setMinimumLatency(0)
                 .setOverrideDeadline(5_000)
-                .setRequiredNetworkType(
-                    if (prefs.webhookUrl.isBlank()) JobInfo.NETWORK_TYPE_NONE else JobInfo.NETWORK_TYPE_ANY
-                )
+                .setRequiredNetworkType(if (networkDelivery) JobInfo.NETWORK_TYPE_ANY else JobInfo.NETWORK_TYPE_NONE)
                 .build()
             scheduler.schedule(job)
         }
