@@ -15,6 +15,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -23,13 +24,17 @@
     <application
         android:allowBackup="false"
         android:label="@string/app_name"
-        android:icon="@drawable/ic_shield"
+        android:icon="@drawable/ic_acaughtu"
+        android:roundIcon="@drawable/ic_acaughtu"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="false">
 
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
+        <activity android:name=".security.AppLockActivity" android:exported="false" />
+        <activity android:name=".SecurityActivity" android:exported="false" />
+        <activity android:name=".AdvancedSettingsActivity" android:exported="false" />
+        <activity android:name=".SettingsActivity" android:exported="false" />
+
+        <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -42,9 +47,7 @@
             android:exported="true"
             android:permission="android.permission.BIND_DEVICE_ADMIN"
             android:directBootAware="true">
-            <meta-data
-                android:name="android.app.device_admin"
-                android:resource="@xml/device_admin" />
+            <meta-data android:name="android.app.device_admin" android:resource="@xml/device_admin" />
             <intent-filter>
                 <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
             </intent-filter>
@@ -60,10 +63,7 @@
             </intent-filter>
         </receiver>
 
-        <receiver
-            android:name=".remote.BootReceiver"
-            android:exported="false"
-            android:directBootAware="true">
+        <receiver android:name=".remote.BootReceiver" android:exported="false" android:directBootAware="true">
             <intent-filter>
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -77,6 +77,17 @@
             android:directBootAware="true"
             android:stopWithTask="false"
             android:foregroundServiceType="remoteMessaging" />
+
+        <service
+            android:name=".service.PermissionHealthService"
+            android:exported="false"
+            android:directBootAware="true"
+            android:stopWithTask="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Monitors required permissions and device-admin health for owner-controlled anti-theft protection." />
+        </service>
 
         <service
             android:name=".service.IncidentCaptureService"
@@ -95,6 +106,5 @@
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE"
             android:directBootAware="true" />
-
     </application>
 </manifest>

@@ -1,4 +1,4 @@
-# iCaughtU Android
+# aCaughtU
 
 An owner-controlled Android anti-theft/security app inspired by iCaughtU Pro. It watches for failed system unlock attempts through Android's Device Administration / Device Policy APIs, records incidents, can attach last-known location, can deliver incident JSON to an HTTPS webhook, can sound a lost-device alarm, and supports a small authenticated SMS command set.
 
@@ -62,7 +62,7 @@ You can also push the project to GitHub and run **Build Android APK** under Acti
    adb install -r app/build/outputs/apk/debug/app-debug.apk
    ```
 
-2. Open **iCaughtU Android**.
+2. Open **aCaughtU**.
 3. Tap **Activate Device Admin** and approve the requested `watch-login` / `force-lock` policies.
 4. Grant camera and location permissions. If you want last-known location available while the UI is not open, also grant background location from the app's Android settings page.
 5. Configure the failed-attempt threshold, webhook, and/or SMS command options, then tap **Save settings**.
@@ -188,3 +188,14 @@ Incident JPEGs are still retained in the app's private incident store for delive
 GitHub Actions now builds a persistently signed release APK. The signing key is generated once under the Termux-private directory `~/.icaughtu-signing/` and is uploaded to GitHub only through repository Actions secrets. Preserve that local signing directory as a backup. Losing both the local key and the GitHub secret prevents future APKs from updating existing installations.
 
 The pre-v0.3.1 GitHub debug APKs were signed with runner-generated debug certificates. Android will therefore require the currently installed debug build to be uninstalled once before the first persistently signed v0.3.1 release can be installed. After that migration, future signed release builds can update v0.3.1+ in place.
+
+
+## v0.4 security and UI
+
+- Renamed the app to **aCaughtU** while preserving the existing application ID/signing path for upgrade compatibility.
+- Guided runtime-permission onboarding on first launch and verification on every app open.
+- Persistent foreground protection-status notification that reports required-permission/device-admin changes.
+- Simplified dashboard with separate Settings, Advanced, and Security screens.
+- Optional device-credential or PBKDF2 passphrase app lock.
+- Optional Device Owner uninstall blocking via `DevicePolicyManager.setUninstallBlocked()`.
+- Existing incident gallery remains `Pictures/iCaughtU` to preserve photo continuity.
