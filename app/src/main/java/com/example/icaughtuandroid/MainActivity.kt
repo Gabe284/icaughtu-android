@@ -28,7 +28,7 @@ import com.example.icaughtuandroid.security.AppLockActivity
 import com.example.icaughtuandroid.security.AppSecurity
 import com.example.icaughtuandroid.service.IncidentCaptureService
 import com.example.icaughtuandroid.service.IncidentJobService
-import com.example.icaughtuandroid.service.PermissionHealthService
+import com.example.icaughtuandroid.util.PermissionHealthMonitor
 import com.example.icaughtuandroid.util.NotificationUtil
 import com.example.icaughtuandroid.util.PermissionManager
 
@@ -51,7 +51,8 @@ class MainActivity : Activity() {
             window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         }
         setContentView(buildUi())
-        runCatching { PermissionHealthService.start(this) }
+        PermissionHealthMonitor.schedule(this)
+        PermissionHealthMonitor.checkNow(this)
         enforceAppLock()
         requestMissingPermissionsIfNeeded()
     }
@@ -60,6 +61,7 @@ class MainActivity : Activity() {
         super.onResume()
         enforceAppLock()
         refresh()
+        PermissionHealthMonitor.checkNow(this)
         if (!permissionPromptedThisSession) requestMissingPermissionsIfNeeded()
     }
 
@@ -210,6 +212,7 @@ class MainActivity : Activity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQ_RUNTIME) {
             refresh()
+            PermissionHealthMonitor.checkNow(this)
             continuePermissionOnboarding()
         }
     }

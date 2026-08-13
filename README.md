@@ -199,3 +199,12 @@ The pre-v0.3.1 GitHub debug APKs were signed with runner-generated debug certifi
 - Optional device-credential or PBKDF2 passphrase app lock.
 - Optional Device Owner uninstall blocking via `DevicePolicyManager.setUninstallBlocked()`.
 - Existing incident gallery remains `Pictures/iCaughtU` to preserve photo continuity.
+
+
+## v0.4.1 permission notification behavior
+
+- Permission monitoring is silent when all required permissions and Device Admin are available.
+- An ongoing **aCaughtU action required** notification is posted only while required capabilities are missing.
+- The warning is automatically cancelled after the missing capability is restored.
+- A persisted JobScheduler check re-validates permission health periodically in the background without keeping a foreground service running continuously.
+- Android 13+ cannot display the warning if `POST_NOTIFICATIONS` itself is denied; that missing state is still reported in the app when opened.

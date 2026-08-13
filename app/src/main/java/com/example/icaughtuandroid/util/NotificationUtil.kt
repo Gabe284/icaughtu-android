@@ -39,8 +39,8 @@ object NotificationUtil {
             }
         )
         nm.createNotificationChannel(
-            NotificationChannel(CHANNEL_PERMISSION_HEALTH, "Protection status", NotificationManager.IMPORTANCE_LOW).apply {
-                description = "Persistent aCaughtU protection and required-permission status."
+            NotificationChannel(CHANNEL_PERMISSION_HEALTH, "Permission warnings", NotificationManager.IMPORTANCE_LOW).apply {
+                description = "Shown only while aCaughtU is missing a required permission or Device Admin capability."
                 setShowBadge(false)
             }
         )
@@ -58,7 +58,7 @@ object NotificationUtil {
     ): Notification = serviceNotification(
         context,
         CHANNEL_PERMISSION_HEALTH,
-        if (health.ok) "aCaughtU protection ready" else "aCaughtU action required",
+        "aCaughtU action required",
         health.summary
     )
 

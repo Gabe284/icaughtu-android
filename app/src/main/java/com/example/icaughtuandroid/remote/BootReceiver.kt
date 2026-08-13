@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import com.example.icaughtuandroid.data.IncidentStore
 import com.example.icaughtuandroid.data.Prefs
-import com.example.icaughtuandroid.service.PermissionHealthService
+import com.example.icaughtuandroid.util.PermissionHealthMonitor
 
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -14,7 +14,8 @@ class BootReceiver : BroadcastReceiver() {
             intent.action != Intent.ACTION_MY_PACKAGE_REPLACED
         ) return
 
-        runCatching { PermissionHealthService.start(context) }
+        PermissionHealthMonitor.schedule(context)
+        PermissionHealthMonitor.checkNow(context)
 
         val prefs = Prefs(context)
         if (!prefs.ntfyCommandsEnabled) return
